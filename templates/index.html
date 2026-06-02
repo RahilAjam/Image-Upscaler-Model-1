@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>AI Image Enhancer</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background: #0f0f1a;
+            display: flex;
+            color: white;
+        }
+
+        /* LEFT PANEL */
+        .left {
+            width: 30%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .upload {
+            border: 1px dashed rgba(255,255,255,0.2);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .upload:hover {
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        input {
+            display: none;
+        }
+
+        .btn {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background: white;
+            color: black;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .loader {
+            margin-top: 15px;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255,255,255,0.2);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* RIGHT PANEL */
+        .right {
+            width: 70%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .preview-box {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        /* Compare slider */
+        .compare {
+            position: relative;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .compare img {
+            width: 100%;
+            display: block;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            overflow: hidden;
+        }
+
+        .slider {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            background: white;
+            cursor: ew-resize;
+        }
+
+        .download {
+            margin-top: 15px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- LEFT SIDE -->
+<div class="left">
+
+    <h1>AI Image Enhancer</h1>
+
+    <form method="POST" enctype="multipart/form-data" onsubmit="showLoader()">
+        <label class="upload">
+            Upload Image
+            <input type="file" name="file" required>
+        </label>
+
+        <button class="btn">Enhance</button>
+    </form>
+
+    <div class="loader" id="loader"></div>
+
+</div>
+
+<!-- RIGHT SIDE -->
+<div class="right">
+
+    {% if original_image and enhanced_image %}
+    <div class="preview-box">
+
+        <div class="compare">
+            <img src="{{ url_for('uploaded_file', filename=enhanced_image) }}">
+
+            <div class="overlay" id="overlay">
+                <img src="{{ url_for('uploaded_file', filename=original_image) }}">
+            </div>
+
+            <div class="slider" id="slider"></div>
+        </div>
+
+        <a href="{{ url_for('download_file', filename=enhanced_image) }}">
+            <button class="btn download">Download</button>
+        </a>
+
+    </div>
+    {% else %}
+        <p style="opacity:0.5;">Upload an image to preview</p>
+    {% endif %}
+
+</div>
+
+<script>
+function showLoader() {
+    document.getElementById("loader").style.display = "block";
+}
+
+/* Slider */
+const slider = document.getElementById("slider");
+const overlay = document.getElementById("overlay");
+
+if (slider) {
+    let active = false;
+
+    slider.addEventListener("mousedown", () => active = true);
+    window.addEventListener("mouseup", () => active = false);
+
+    window.addEventListener("mousemove", (e) => {
+        if (!active) return;
+
+        let rect = slider.parentElement.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+
+        if (x < 0) x = 0;
+        if (x > rect.width) x = rect.width;
+
+        slider.style.left = x + "px";
+        overlay.style.width = x + "px";
+    });
+}
+</script>
+
+</body>
+</html>
