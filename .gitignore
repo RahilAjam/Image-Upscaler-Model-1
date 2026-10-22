@@ -1,8 +1,22 @@
+
 venv/
+.venv/
 uploads/
 __pycache__/
 *.pyc
 .DS_Store
 
+# AI model weights
 *.pth
 *.pb
+*.pt
+*.onnx
+
+# Secrets and environment variables
+.env
+.env.*
+!.env.example
+
+# Python tooling
+.pytest_cache/
+.mypy_cache/
